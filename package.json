@@ -15,7 +15,11 @@
     "format:check": "biome format .",
     "check": "biome check .",
     "check:fix": "biome check --write .",
-    "ci": "npm run format:check && npm run lint && npm run build && npm test"
+    "ci": "npm run format:check && npm run lint && npm run build && npm test",
+    "deploy": "npm run build && wrangler deploy",
+    "cf:dev": "wrangler dev",
+    "cf:deploy": "wrangler deploy",
+    "cf:tail": "wrangler tail"
   },
   "keywords": [
     "mcp",
@@ -35,6 +39,7 @@
     "@biomejs/biome": "^2.3.5",
     "@types/node": "^20.10.5",
     "tsx": "^4.7.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "wrangler": "^3.80.0"
   }
 }

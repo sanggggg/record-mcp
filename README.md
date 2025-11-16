@@ -66,6 +66,28 @@ npm start
 npm test
 ```
 
+## Deployment
+
+This project supports automatic deployment to Cloudflare Workers. When you push changes to the `main` branch, the code is automatically deployed.
+
+### Setup Deployment
+
+1. See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions
+2. Configure required GitHub secrets (CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID)
+3. Push to `main` branch to trigger automatic deployment
+
+### Manual Deployment
+
+```bash
+# Deploy to Cloudflare Workers
+npm run deploy
+
+# Or use wrangler directly
+npm run cf:deploy
+```
+
+For more details, see the [Deployment Guide](./DEPLOYMENT.md).
+
 ## MCP Tools
 
 The server provides the following MCP tools:
