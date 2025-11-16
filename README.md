@@ -2,6 +2,10 @@
 
 A Model Context Protocol (MCP) server for storing and managing dynamic review records with user-defined schemas. Perfect for organizing reviews of coffee, whisky, wine, or any other category you can think of!
 
+<a href="https://glama.ai/mcp/servers/@sanggggg/record-mcp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@sanggggg/record-mcp/badge" alt="Record Server MCP server" />
+</a>
+
 ## Features
 
 - **Dynamic Schemas**: Create review types with custom fields on-the-fly
