@@ -2,11 +2,11 @@
  * Local file system storage provider implementation
  */
 
-import { promises as fs } from 'fs';
-import path from 'path';
-import { StorageProvider } from './interface.js';
-import { ReviewTypeData, TypeIndex } from '../types.js';
-import { ReviewTypeDataSchema } from '../utils/validation.js';
+import { promises as fs } from "node:fs";
+import path from "node:path";
+import type { ReviewTypeData, TypeIndex } from "../types.js";
+import { ReviewTypeDataSchema } from "../utils/validation.js";
+import type { StorageProvider } from "./interface.js";
 
 /**
  * Local filesystem storage provider
@@ -17,10 +17,10 @@ export class LocalStorageProvider implements StorageProvider {
   private typesPath: string;
   private indexPath: string;
 
-  constructor(dataPath: string = './data') {
+  constructor(dataPath: string = "./data") {
     this.dataPath = dataPath;
-    this.typesPath = path.join(dataPath, 'types');
-    this.indexPath = path.join(dataPath, 'index.json');
+    this.typesPath = path.join(dataPath, "types");
+    this.indexPath = path.join(dataPath, "index.json");
   }
 
   /**
@@ -43,7 +43,7 @@ export class LocalStorageProvider implements StorageProvider {
           types: [],
           lastUpdated: new Date().toISOString(),
         };
-        await fs.writeFile(this.indexPath, JSON.stringify(initialIndex, null, 2), 'utf-8');
+        await fs.writeFile(this.indexPath, JSON.stringify(initialIndex, null, 2), "utf-8");
       }
     } catch (error) {
       throw new Error(`Failed to initialize local storage: ${error}`);
@@ -56,13 +56,13 @@ export class LocalStorageProvider implements StorageProvider {
   async readType(typeName: string): Promise<ReviewTypeData> {
     try {
       const filePath = this.getTypeFilePath(typeName);
-      const content = await fs.readFile(filePath, 'utf-8');
+      const content = await fs.readFile(filePath, "utf-8");
       const data = JSON.parse(content);
 
       // Validate the data structure
       return ReviewTypeDataSchema.parse(data);
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") {
         throw new Error(`Review type "${typeName}" does not exist`);
       }
       throw new Error(`Failed to read review type "${typeName}": ${error}`);
@@ -82,7 +82,7 @@ export class LocalStorageProvider implements StorageProvider {
 
       // Atomic write: write to temp file, then rename
       const tempPath = `${filePath}.tmp`;
-      await fs.writeFile(tempPath, content, 'utf-8');
+      await fs.writeFile(tempPath, content, "utf-8");
       await fs.rename(tempPath, filePath);
 
       // Update index
@@ -97,7 +97,7 @@ export class LocalStorageProvider implements StorageProvider {
    */
   async listTypes(): Promise<string[]> {
     try {
-      const content = await fs.readFile(this.indexPath, 'utf-8');
+      const content = await fs.readFile(this.indexPath, "utf-8");
       const index: TypeIndex = JSON.parse(content);
       return index.types;
     } catch (error) {
@@ -125,7 +125,7 @@ export class LocalStorageProvider implements StorageProvider {
       // Remove from index
       await this.removeFromIndex(typeName);
     } catch (error) {
-      if (error instanceof Error && error.message.includes('does not exist')) {
+      if (error instanceof Error && error.message.includes("does not exist")) {
         throw error;
       }
       throw new Error(`Failed to delete review type "${typeName}": ${error}`);
@@ -157,7 +157,7 @@ export class LocalStorageProvider implements StorageProvider {
    */
   private async updateIndex(typeName: string): Promise<void> {
     try {
-      const content = await fs.readFile(this.indexPath, 'utf-8');
+      const content = await fs.readFile(this.indexPath, "utf-8");
       const index: TypeIndex = JSON.parse(content);
 
       // Add type if not already in index
@@ -168,7 +168,7 @@ export class LocalStorageProvider implements StorageProvider {
 
       index.lastUpdated = new Date().toISOString();
 
-      await fs.writeFile(this.indexPath, JSON.stringify(index, null, 2), 'utf-8');
+      await fs.writeFile(this.indexPath, JSON.stringify(index, null, 2), "utf-8");
     } catch (error) {
       throw new Error(`Failed to update index: ${error}`);
     }
@@ -179,13 +179,13 @@ export class LocalStorageProvider implements StorageProvider {
    */
   private async removeFromIndex(typeName: string): Promise<void> {
     try {
-      const content = await fs.readFile(this.indexPath, 'utf-8');
+      const content = await fs.readFile(this.indexPath, "utf-8");
       const index: TypeIndex = JSON.parse(content);
 
-      index.types = index.types.filter(t => t !== typeName);
+      index.types = index.types.filter((t) => t !== typeName);
       index.lastUpdated = new Date().toISOString();
 
-      await fs.writeFile(this.indexPath, JSON.stringify(index, null, 2), 'utf-8');
+      await fs.writeFile(this.indexPath, JSON.stringify(index, null, 2), "utf-8");
     } catch (error) {
       throw new Error(`Failed to update index: ${error}`);
     }

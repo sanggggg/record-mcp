@@ -5,20 +5,20 @@
  * Main entry point for the MCP server
  */
 
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
-  Tool,
-} from '@modelcontextprotocol/sdk/types.js';
+  type Tool,
+} from "@modelcontextprotocol/sdk/types.js";
 
-import { createStorageProvider } from './storage/factory.js';
-import { StorageProvider } from './storage/interface.js';
-import { listTypes, getType } from './tools/list-types.js';
-import { addType } from './tools/add-type.js';
-import { addField } from './tools/add-field.js';
-import { addRecord } from './tools/add-record.js';
+import { createStorageProvider } from "./storage/factory.js";
+import type { StorageProvider } from "./storage/interface.js";
+import { addField } from "./tools/add-field.js";
+import { addRecord } from "./tools/add-record.js";
+import { addType } from "./tools/add-type.js";
+import { getType, listTypes } from "./tools/list-types.js";
 
 // Initialize storage provider
 let storage: StorageProvider;
@@ -26,100 +26,100 @@ let storage: StorageProvider;
 // Define MCP tools
 const TOOLS: Tool[] = [
   {
-    name: 'list_review_types',
-    description: 'List all review types with their schemas and record counts',
+    name: "list_review_types",
+    description: "List all review types with their schemas and record counts",
     inputSchema: {
-      type: 'object',
+      type: "object",
       properties: {},
       required: [],
     },
   },
   {
-    name: 'get_review_type',
-    description: 'Get detailed information about a specific review type including all records',
+    name: "get_review_type",
+    description: "Get detailed information about a specific review type including all records",
     inputSchema: {
-      type: 'object',
+      type: "object",
       properties: {
         typeName: {
-          type: 'string',
-          description: 'Name of the review type to retrieve',
+          type: "string",
+          description: "Name of the review type to retrieve",
         },
       },
-      required: ['typeName'],
+      required: ["typeName"],
     },
   },
   {
-    name: 'add_review_type',
-    description: 'Create a new review type with a custom schema',
+    name: "add_review_type",
+    description: "Create a new review type with a custom schema",
     inputSchema: {
-      type: 'object',
+      type: "object",
       properties: {
         name: {
-          type: 'string',
+          type: "string",
           description: 'Name of the new review type (e.g., "coffee", "whisky")',
         },
         fields: {
-          type: 'array',
-          description: 'Array of field definitions for the schema',
+          type: "array",
+          description: "Array of field definitions for the schema",
           items: {
-            type: 'object',
+            type: "object",
             properties: {
               name: {
-                type: 'string',
-                description: 'Field name',
+                type: "string",
+                description: "Field name",
               },
               type: {
-                type: 'string',
-                enum: ['string', 'number', 'boolean', 'date'],
-                description: 'Field type',
+                type: "string",
+                enum: ["string", "number", "boolean", "date"],
+                description: "Field type",
               },
             },
-            required: ['name', 'type'],
+            required: ["name", "type"],
           },
         },
       },
-      required: ['name', 'fields'],
+      required: ["name", "fields"],
     },
   },
   {
-    name: 'add_field_to_type',
-    description: 'Add a new field to an existing review type schema',
+    name: "add_field_to_type",
+    description: "Add a new field to an existing review type schema",
     inputSchema: {
-      type: 'object',
+      type: "object",
       properties: {
         typeName: {
-          type: 'string',
-          description: 'Name of the review type to modify',
+          type: "string",
+          description: "Name of the review type to modify",
         },
         fieldName: {
-          type: 'string',
-          description: 'Name of the new field',
+          type: "string",
+          description: "Name of the new field",
         },
         fieldType: {
-          type: 'string',
-          enum: ['string', 'number', 'boolean', 'date'],
-          description: 'Type of the new field',
+          type: "string",
+          enum: ["string", "number", "boolean", "date"],
+          description: "Type of the new field",
         },
       },
-      required: ['typeName', 'fieldName', 'fieldType'],
+      required: ["typeName", "fieldName", "fieldType"],
     },
   },
   {
-    name: 'add_review_record',
-    description: 'Add a new review record to a type',
+    name: "add_review_record",
+    description: "Add a new review record to a type",
     inputSchema: {
-      type: 'object',
+      type: "object",
       properties: {
         typeName: {
-          type: 'string',
-          description: 'Name of the review type',
+          type: "string",
+          description: "Name of the review type",
         },
         data: {
-          type: 'object',
-          description: 'Review data matching the type schema',
+          type: "object",
+          description: "Review data matching the type schema",
         },
       },
-      required: ['typeName', 'data'],
+      required: ["typeName", "data"],
     },
   },
 ];
@@ -136,8 +136,8 @@ async function main() {
     // Create MCP server
     const server = new Server(
       {
-        name: 'record-mcp',
-        version: '0.1.0',
+        name: "record-mcp",
+        version: "0.1.0",
       },
       {
         capabilities: {
@@ -157,76 +157,76 @@ async function main() {
 
       try {
         switch (name) {
-          case 'list_review_types': {
+          case "list_review_types": {
             const result = await listTypes(storage);
             return {
               content: [
                 {
-                  type: 'text',
+                  type: "text",
                   text: JSON.stringify(result, null, 2),
                 },
               ],
             };
           }
 
-          case 'get_review_type': {
+          case "get_review_type": {
             const typeName = args?.typeName as string;
             if (!typeName) {
-              throw new Error('typeName is required');
+              throw new Error("typeName is required");
             }
             const result = await getType(storage, typeName);
             return {
               content: [
                 {
-                  type: 'text',
+                  type: "text",
                   text: JSON.stringify(result, null, 2),
                 },
               ],
             };
           }
 
-          case 'add_review_type': {
+          case "add_review_type": {
             const params = args as { name: string; fields: Array<{ name: string; type: string }> };
             if (!params?.name || !params?.fields) {
-              throw new Error('name and fields are required');
+              throw new Error("name and fields are required");
             }
             const result = await addType(storage, params);
             return {
               content: [
                 {
-                  type: 'text',
+                  type: "text",
                   text: JSON.stringify(result, null, 2),
                 },
               ],
             };
           }
 
-          case 'add_field_to_type': {
+          case "add_field_to_type": {
             const params = args as { typeName: string; fieldName: string; fieldType: string };
             if (!params?.typeName || !params?.fieldName || !params?.fieldType) {
-              throw new Error('typeName, fieldName, and fieldType are required');
+              throw new Error("typeName, fieldName, and fieldType are required");
             }
             const result = await addField(storage, params);
             return {
               content: [
                 {
-                  type: 'text',
+                  type: "text",
                   text: JSON.stringify(result, null, 2),
                 },
               ],
             };
           }
 
-          case 'add_review_record': {
+          case "add_review_record": {
             const params = args as { typeName: string; data: Record<string, unknown> };
             if (!params?.typeName || !params?.data) {
-              throw new Error('typeName and data are required');
+              throw new Error("typeName and data are required");
             }
             const result = await addRecord(storage, params);
             return {
               content: [
                 {
-                  type: 'text',
+                  type: "text",
                   text: JSON.stringify(result, null, 2),
                 },
               ],
@@ -241,7 +241,7 @@ async function main() {
         return {
           content: [
             {
-              type: 'text',
+              type: "text",
               text: JSON.stringify({ error: errorMessage }, null, 2),
             },
           ],
@@ -254,9 +254,9 @@ async function main() {
     const transport = new StdioServerTransport();
     await server.connect(transport);
 
-    console.error('Record MCP Server running on stdio');
+    console.error("Record MCP Server running on stdio");
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error("Failed to start server:", error);
     process.exit(1);
   }
 }

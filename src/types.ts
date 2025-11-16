@@ -5,7 +5,7 @@
 /**
  * Supported field types for review schemas
  */
-export type FieldType = 'string' | 'number' | 'boolean' | 'date';
+export type FieldType = "string" | "number" | "boolean" | "date";
 
 /**
  * Definition of a field in a review type's schema
@@ -57,7 +57,7 @@ export interface R2Config {
 /**
  * Storage provider types
  */
-export type StorageProviderType = 'local' | 'r2';
+export type StorageProviderType = "local" | "r2";
 
 /**
  * Environment configuration

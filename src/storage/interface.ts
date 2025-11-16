@@ -2,7 +2,7 @@
  * Storage provider interface for abstracting local files vs R2
  */
 
-import { ReviewTypeData } from '../types.js';
+import type { ReviewTypeData } from "../types.js";
 
 /**
  * Abstract storage interface that works with both local files and Cloudflare R2

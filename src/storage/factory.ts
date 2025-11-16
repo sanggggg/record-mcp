@@ -3,18 +3,18 @@
  * Creates the appropriate storage provider based on configuration
  */
 
-import 'dotenv/config';
-import { StorageProvider } from './interface.js';
-import { LocalStorageProvider } from './local.js';
-import { R2StorageProvider } from './r2.js';
-import { Config, StorageProviderType } from '../types.js';
+import "dotenv/config";
+import type { Config, StorageProviderType } from "../types.js";
+import type { StorageProvider } from "./interface.js";
+import { LocalStorageProvider } from "./local.js";
+import { R2StorageProvider } from "./r2.js";
 
 /**
  * Load configuration from environment variables
  */
 export function loadConfig(): Config {
-  const storageProvider = (process.env.STORAGE_PROVIDER || 'local') as StorageProviderType;
-  const localDataPath = process.env.LOCAL_DATA_PATH || './data';
+  const storageProvider = (process.env.STORAGE_PROVIDER || "local") as StorageProviderType;
+  const localDataPath = process.env.LOCAL_DATA_PATH || "./data";
 
   const config: Config = {
     storageProvider,
@@ -22,7 +22,7 @@ export function loadConfig(): Config {
   };
 
   // Load R2 config if provider is R2
-  if (storageProvider === 'r2') {
+  if (storageProvider === "r2") {
     const accountId = process.env.R2_ACCOUNT_ID;
     const accessKeyId = process.env.R2_ACCESS_KEY_ID;
     const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
@@ -30,7 +30,7 @@ export function loadConfig(): Config {
 
     if (!accountId || !accessKeyId || !secretAccessKey || !bucketName) {
       throw new Error(
-        'R2 configuration missing. Please set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and R2_BUCKET_NAME'
+        "R2 configuration missing. Please set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and R2_BUCKET_NAME"
       );
     }
 
@@ -53,12 +53,12 @@ export function createStorageProvider(config?: Config): StorageProvider {
   const cfg = config || loadConfig();
 
   switch (cfg.storageProvider) {
-    case 'local':
+    case "local":
       return new LocalStorageProvider(cfg.localDataPath);
 
-    case 'r2':
+    case "r2":
       if (!cfg.r2Config) {
-        throw new Error('R2 configuration is required when using R2 storage provider');
+        throw new Error("R2 configuration is required when using R2 storage provider");
       }
       return new R2StorageProvider(cfg.r2Config);
 

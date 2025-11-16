@@ -2,9 +2,13 @@
  * Add a field to an existing review type
  */
 
-import { StorageProvider } from '../storage/interface.js';
-import { FieldDefinition } from '../types.js';
-import { validateFieldDefinition, validateTypeName, getCurrentTimestamp } from '../utils/validation.js';
+import type { StorageProvider } from "../storage/interface.js";
+import type { FieldDefinition } from "../types.js";
+import {
+  getCurrentTimestamp,
+  validateFieldDefinition,
+  validateTypeName,
+} from "../utils/validation.js";
 
 export interface AddFieldParams {
   typeName: string;
@@ -45,7 +49,7 @@ export async function addField(
   });
 
   // Check if field already exists
-  const fieldExists = typeData.schema.some(f => f.name === newField.name);
+  const fieldExists = typeData.schema.some((f) => f.name === newField.name);
   if (fieldExists) {
     throw new Error(`Field "${newField.name}" already exists in type "${typeName}"`);
   }
