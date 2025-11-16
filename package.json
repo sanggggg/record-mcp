@@ -9,9 +9,20 @@
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
     "test": "tsx tests/storage.test.ts && tsx tests/tools.test.ts",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "ci": "npm run format:check && npm run lint && npm run build && npm test"
   },
-  "keywords": ["mcp", "review", "dynamic-schema", "cloudflare-r2"],
+  "keywords": [
+    "mcp",
+    "review",
+    "dynamic-schema",
+    "cloudflare-r2"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
@@ -21,8 +32,9 @@
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.685.0",
+    "@biomejs/biome": "^2.3.5",
     "@types/node": "^20.10.5",
-    "typescript": "^5.3.3",
-    "tsx": "^4.7.0"
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
   }
 }

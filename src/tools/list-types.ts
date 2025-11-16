@@ -2,7 +2,7 @@
  * List all review types and their schemas
  */
 
-import { StorageProvider } from '../storage/interface.js';
+import type { StorageProvider } from "../storage/interface.js";
 
 export interface ListTypesResult {
   types: Array<{

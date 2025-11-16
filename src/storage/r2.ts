@@ -2,10 +2,16 @@
  * Cloudflare R2 storage provider implementation
  */
 
-import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
-import { StorageProvider } from './interface.js';
-import { ReviewTypeData, TypeIndex, R2Config } from '../types.js';
-import { ReviewTypeDataSchema } from '../utils/validation.js';
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  HeadObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import type { R2Config, ReviewTypeData, TypeIndex } from "../types.js";
+import { ReviewTypeDataSchema } from "../utils/validation.js";
+import type { StorageProvider } from "./interface.js";
 
 /**
  * Cloudflare R2 storage provider
@@ -14,14 +20,14 @@ import { ReviewTypeDataSchema } from '../utils/validation.js';
 export class R2StorageProvider implements StorageProvider {
   private client: S3Client;
   private bucketName: string;
-  private readonly INDEX_KEY = 'index.json';
-  private readonly TYPES_PREFIX = 'types/';
+  private readonly INDEX_KEY = "index.json";
+  private readonly TYPES_PREFIX = "types/";
 
   constructor(config: R2Config) {
     const endpoint = config.endpoint || `https://${config.accountId}.r2.cloudflarestorage.com`;
 
     this.client = new S3Client({
-      region: 'auto',
+      region: "auto",
       endpoint,
       credentials: {
         accessKeyId: config.accessKeyId,
@@ -68,7 +74,7 @@ export class R2StorageProvider implements StorageProvider {
       const data = JSON.parse(content);
       return ReviewTypeDataSchema.parse(data);
     } catch (error) {
-      if (error instanceof Error && error.message.includes('does not exist')) {
+      if (error instanceof Error && error.message.includes("does not exist")) {
         throw error;
       }
       throw new Error(`Failed to read review type "${typeName}": ${error}`);
@@ -132,7 +138,7 @@ export class R2StorageProvider implements StorageProvider {
       // Remove from index
       await this.removeFromIndex(typeName);
     } catch (error) {
-      if (error instanceof Error && error.message.includes('does not exist')) {
+      if (error instanceof Error && error.message.includes("does not exist")) {
         throw error;
       }
       throw new Error(`Failed to delete review type "${typeName}": ${error}`);
@@ -172,7 +178,7 @@ export class R2StorageProvider implements StorageProvider {
 
       return await response.Body.transformToString();
     } catch (error: any) {
-      if (error.name === 'NoSuchKey' || error.$metadata?.httpStatusCode === 404) {
+      if (error.name === "NoSuchKey" || error.$metadata?.httpStatusCode === 404) {
         return null;
       }
       throw error;
@@ -187,7 +193,7 @@ export class R2StorageProvider implements StorageProvider {
       Bucket: this.bucketName,
       Key: key,
       Body: content,
-      ContentType: 'application/json',
+      ContentType: "application/json",
     });
 
     await this.client.send(command);
@@ -218,7 +224,7 @@ export class R2StorageProvider implements StorageProvider {
       await this.client.send(command);
       return true;
     } catch (error: any) {
-      if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
+      if (error.name === "NotFound" || error.$metadata?.httpStatusCode === 404) {
         return false;
       }
       throw error;
@@ -231,7 +237,7 @@ export class R2StorageProvider implements StorageProvider {
   private async updateIndex(typeName: string): Promise<void> {
     try {
       const content = await this.getObject(this.INDEX_KEY);
-      const index: TypeIndex = content ? JSON.parse(content) : { types: [], lastUpdated: '' };
+      const index: TypeIndex = content ? JSON.parse(content) : { types: [], lastUpdated: "" };
 
       // Add type if not already in index
       if (!index.types.includes(typeName)) {
@@ -253,9 +259,9 @@ export class R2StorageProvider implements StorageProvider {
   private async removeFromIndex(typeName: string): Promise<void> {
     try {
       const content = await this.getObject(this.INDEX_KEY);
-      const index: TypeIndex = content ? JSON.parse(content) : { types: [], lastUpdated: '' };
+      const index: TypeIndex = content ? JSON.parse(content) : { types: [], lastUpdated: "" };
 
-      index.types = index.types.filter(t => t !== typeName);
+      index.types = index.types.filter((t) => t !== typeName);
       index.lastUpdated = new Date().toISOString();
 
       await this.putObject(this.INDEX_KEY, JSON.stringify(index, null, 2));

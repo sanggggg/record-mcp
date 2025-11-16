@@ -2,9 +2,9 @@
  * Add a new review type
  */
 
-import { StorageProvider } from '../storage/interface.js';
-import { FieldDefinition, ReviewTypeData } from '../types.js';
-import { validateTypeName, validateSchema, getCurrentTimestamp } from '../utils/validation.js';
+import type { StorageProvider } from "../storage/interface.js";
+import type { FieldDefinition, ReviewTypeData } from "../types.js";
+import { getCurrentTimestamp, validateSchema, validateTypeName } from "../utils/validation.js";
 
 export interface AddTypeParams {
   name: string;

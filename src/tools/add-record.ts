@@ -2,14 +2,14 @@
  * Add a review record to a type
  */
 
-import { StorageProvider } from '../storage/interface.js';
-import { ReviewRecord } from '../types.js';
+import type { StorageProvider } from "../storage/interface.js";
+import type { ReviewRecord } from "../types.js";
 import {
-  validateTypeName,
-  validateRecordAgainstSchema,
   generateId,
   getCurrentTimestamp,
-} from '../utils/validation.js';
+  validateRecordAgainstSchema,
+  validateTypeName,
+} from "../utils/validation.js";
 
 export interface AddRecordParams {
   typeName: string;
