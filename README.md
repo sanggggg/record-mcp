@@ -68,12 +68,27 @@ npm test
 
 ## Deployment
 
-This project supports automatic deployment to Cloudflare Workers. When you push changes to the `main` branch, the code is automatically deployed.
+This project supports automatic deployment to Cloudflare Workers. When you push changes to the `main` branch, the code is automatically deployed as an **HTTP API with authentication**.
+
+### Authentication
+
+The deployed worker requires API key authentication to prevent unauthorized access:
+
+- **Authorization header**: `Authorization: Bearer YOUR_API_KEY`
+- **X-API-Key header**: `X-API-Key: YOUR_API_KEY`
+
+Generate a secure API key:
+```bash
+openssl rand -hex 32
+```
 
 ### Setup Deployment
 
 1. See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions
-2. Configure required GitHub secrets (CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID)
+2. Configure required GitHub secrets:
+   - `CLOUDFLARE_API_TOKEN` - Cloudflare API token
+   - `CLOUDFLARE_ACCOUNT_ID` - Your Cloudflare account ID
+   - `API_KEY` - Secret key for authentication (highly recommended)
 3. Push to `main` branch to trigger automatic deployment
 
 ### Manual Deployment

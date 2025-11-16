@@ -11,10 +11,14 @@ import { R2StorageProvider } from "./r2.js";
 
 /**
  * Load configuration from environment variables
+ * Supports both Node.js process.env and Cloudflare Worker env object
  */
-export function loadConfig(): Config {
-  const storageProvider = (process.env.STORAGE_PROVIDER || "local") as StorageProviderType;
-  const localDataPath = process.env.LOCAL_DATA_PATH || "./data";
+export function loadConfig(env?: Record<string, string | undefined>): Config {
+  // Use provided env object (for Cloudflare Workers) or process.env (for Node.js)
+  const envSource = env || process.env;
+
+  const storageProvider = (envSource.STORAGE_PROVIDER || "local") as StorageProviderType;
+  const localDataPath = envSource.LOCAL_DATA_PATH || "./data";
 
   const config: Config = {
     storageProvider,
@@ -23,10 +27,10 @@ export function loadConfig(): Config {
 
   // Load R2 config if provider is R2
   if (storageProvider === "r2") {
-    const accountId = process.env.R2_ACCOUNT_ID;
-    const accessKeyId = process.env.R2_ACCESS_KEY_ID;
-    const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
-    const bucketName = process.env.R2_BUCKET_NAME;
+    const accountId = envSource.R2_ACCOUNT_ID;
+    const accessKeyId = envSource.R2_ACCESS_KEY_ID;
+    const secretAccessKey = envSource.R2_SECRET_ACCESS_KEY;
+    const bucketName = envSource.R2_BUCKET_NAME;
 
     if (!accountId || !accessKeyId || !secretAccessKey || !bucketName) {
       throw new Error(
@@ -39,7 +43,7 @@ export function loadConfig(): Config {
       accessKeyId,
       secretAccessKey,
       bucketName,
-      endpoint: process.env.R2_ENDPOINT,
+      endpoint: envSource.R2_ENDPOINT,
     };
   }
 
@@ -49,8 +53,21 @@ export function loadConfig(): Config {
 /**
  * Create storage provider based on configuration
  */
-export function createStorageProvider(config?: Config): StorageProvider {
-  const cfg = config || loadConfig();
+export function createStorageProvider(
+  configOrEnv?: Config | Record<string, string | undefined>
+): StorageProvider {
+  // Check if configOrEnv is a Config object or env variables
+  let cfg: Config;
+
+  if (!configOrEnv) {
+    cfg = loadConfig();
+  } else if ('storageProvider' in configOrEnv) {
+    // It's a Config object
+    cfg = configOrEnv as Config;
+  } else {
+    // It's an env object (for Cloudflare Workers)
+    cfg = loadConfig(configOrEnv as Record<string, string | undefined>);
+  }
 
   switch (cfg.storageProvider) {
     case "local":

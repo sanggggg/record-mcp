@@ -1,7 +1,10 @@
 name = "record-mcp"
-main = "dist/index.js"
+main = "dist/worker.js"
 compatibility_date = "2024-11-16"
 node_compat = true
+
+# Account-level secrets (set via wrangler secret put or GitHub Actions)
+# - API_KEY: Required for authentication
 
 # R2 bucket bindings
 [[r2_buckets]]
@@ -9,6 +12,10 @@ binding = "RECORD_BUCKET"
 bucket_name = "record-mcp-data"
 preview_bucket_name = "record-mcp-data-preview"
 
-# Environment variables (secrets should be set via wrangler secret or GitHub Actions)
+# Environment variables
+# NOTE: API_KEY should be set as a secret, not in [vars]
+# Use: wrangler secret put API_KEY
+# Or set via GitHub Actions secrets
 [vars]
 NODE_ENV = "production"
+STORAGE_PROVIDER = "r2"

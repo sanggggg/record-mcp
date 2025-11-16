@@ -35,13 +35,18 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
+        env:
+          # Pass secrets as environment variables for wrangler
+          API_KEY: ${{ secrets.API_KEY }}
 
-      - name: Set R2 bucket environment (if needed)
-        if: ${{ secrets.R2_ACCESS_KEY_ID != '' }}
+      - name: Set secrets in Cloudflare Worker
         run: |
-          echo "Setting up R2 credentials..."
-          wrangler secret put R2_ACCESS_KEY_ID --env production <<< "${{ secrets.R2_ACCESS_KEY_ID }}"
-          wrangler secret put R2_SECRET_ACCESS_KEY --env production <<< "${{ secrets.R2_SECRET_ACCESS_KEY }}"
+          echo "Setting up worker secrets..."
+          if [ -n "${{ secrets.API_KEY }}" ]; then
+            echo "${{ secrets.API_KEY }}" | npx wrangler secret put API_KEY
+          else
+            echo "⚠️  WARNING: API_KEY secret not set - authentication will be disabled!"
+          fi
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
