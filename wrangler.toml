@@ -1,10 +1,13 @@
 name = "record-mcp"
-main = "dist/worker.js"
+main = "dist/worker-oauth.js"
 compatibility_date = "2024-11-16"
 node_compat = true
 
 # Account-level secrets (set via wrangler secret put or GitHub Actions)
-# - API_KEY: Required for authentication
+# OAuth 2.1 compliant authentication:
+# - API_KEY: Fallback simple auth (optional)
+# - JWT_SECRET: Secret for validating JWT tokens
+# - OAUTH_ISSUER: Your OAuth issuer URL (e.g., https://your-domain.auth0.com)
 
 # R2 bucket bindings
 [[r2_buckets]]
@@ -13,9 +16,11 @@ bucket_name = "record-mcp-data"
 preview_bucket_name = "record-mcp-data-preview"
 
 # Environment variables
-# NOTE: API_KEY should be set as a secret, not in [vars]
-# Use: wrangler secret put API_KEY
-# Or set via GitHub Actions secrets
+# NOTE: Secrets should be set via wrangler secret put or GitHub Actions
+# - API_KEY (optional fallback)
+# - JWT_SECRET (required for OAuth 2.1)
+# - OAUTH_ISSUER (required for OAuth 2.1)
 [vars]
 NODE_ENV = "production"
 STORAGE_PROVIDER = "r2"
+OAUTH_ISSUER = "https://record-mcp.workers.dev"  # Update with your actual domain

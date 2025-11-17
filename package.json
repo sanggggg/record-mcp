@@ -18,8 +18,10 @@
     "ci": "npm run format:check && npm run lint && npm run build && npm test",
     "deploy": "npm run build && wrangler deploy",
     "cf:dev": "wrangler dev",
+    "cf:dev:oauth": "wrangler dev dist/worker-oauth.js",
     "cf:deploy": "wrangler deploy",
-    "cf:tail": "wrangler tail"
+    "cf:tail": "wrangler tail",
+    "cf:secrets": "wrangler secret list"
   },
   "keywords": [
     "mcp",
