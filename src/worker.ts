@@ -28,6 +28,43 @@ export interface Env {
 let storage: StorageProvider | null = null;
 
 /**
+ * Validate Origin header to prevent DNS rebinding attacks
+ * Required by MCP specification for HTTP transports
+ */
+function validateOrigin(request: Request): boolean {
+	const origin = request.headers.get("Origin");
+	const host = request.headers.get("Host");
+
+	// Allow requests without Origin header (non-browser clients)
+	if (!origin) {
+		return true;
+	}
+
+	// Parse origin
+	try {
+		const originUrl = new URL(origin);
+
+		// Allow localhost
+		if (
+			originUrl.hostname === "localhost" ||
+			originUrl.hostname === "127.0.0.1"
+		) {
+			return true;
+		}
+
+		// Allow same origin
+		if (originUrl.host === host) {
+			return true;
+		}
+
+		// Reject other origins (prevent DNS rebinding)
+		return false;
+	} catch {
+		return false;
+	}
+}
+
+/**
  * Validate API key from request headers
  */
 function validateApiKey(request: Request, env: Env): boolean {
@@ -149,16 +186,57 @@ export default {
 			});
 		}
 
-		// Validate API key
-		if (!validateApiKey(request, env)) {
+		// Validate Origin header (MCP spec requirement - prevent DNS rebinding)
+		if (!validateOrigin(request)) {
 			return new Response(
 				JSON.stringify({
 					success: false,
-					error: "Unauthorized - Invalid or missing API key",
+					error: "Invalid Origin header - possible DNS rebinding attack",
+				}),
+				{
+					status: 403,
+					headers: {
+						"Content-Type": "application/json",
+						...corsHeaders(),
+					},
+				}
+			);
+		}
+
+		// Parse request URL
+		const url = new URL(request.url);
+
+		// Health check endpoint (public, no auth required)
+		if (url.pathname === "/health" || url.pathname === "/") {
+			return new Response(
+				JSON.stringify({
+					success: true,
+					service: "record-mcp",
+					version: "0.1.0",
+					status: "healthy",
+				}),
+				{
+					headers: {
+						"Content-Type": "application/json",
+						...corsHeaders(),
+					},
+				}
+			);
+		}
+
+		// Validate API key (all other endpoints require auth)
+		if (!validateApiKey(request, env)) {
+			// Return 401 with WWW-Authenticate header (MCP spec compliance)
+			return new Response(
+				JSON.stringify({
+					success: false,
+					error: "Unauthorized",
+					error_description: "Invalid or missing API key",
 				}),
 				{
 					status: 401,
 					headers: {
+						"WWW-Authenticate": 'Bearer realm="record-mcp", scope="mcp:tools"',
 						"Content-Type": "application/json",
 						...corsHeaders(),
 					},
@@ -186,27 +264,6 @@ export default {
 					}
 				);
 			}
-		}
-
-		// Parse request URL
-		const url = new URL(request.url);
-
-		// Health check endpoint
-		if (url.pathname === "/health" || url.pathname === "/") {
-			return new Response(
-				JSON.stringify({
-					success: true,
-					service: "record-mcp",
-					version: "0.1.0",
-					status: "healthy",
-				}),
-				{
-					headers: {
-						"Content-Type": "application/json",
-						...corsHeaders(),
-					},
-				}
-			);
 		}
 
 		// MCP tool call endpoint
